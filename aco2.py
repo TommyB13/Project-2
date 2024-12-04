@@ -133,8 +133,8 @@ def run_aco_simulation(G, pheromone_levels, num_ants, iterations, source, sink, 
         "runtime": runtime
     }
 
-# Step 1: Run the simulations on multiple graphs and visualize each implementation
-num_graphs = 1
+# Step 1: Run the simulations on multiple graphs
+num_graphs = 10
 num_nodes = 50
 radius = 15
 results_without_optimizations = []
@@ -142,7 +142,7 @@ results_with_optimizations = []
 results_multi_pheromone = []
 
 for i in range(num_graphs):
-    print(f"Running simulations on graph {i + 1}/{num_graphs}...")
+    print(f"\nRunning simulations on graph {i + 1}/{num_graphs}...")
     G = nx.random_geometric_graph(num_nodes, radius, dim=2)
     pos = nx.spring_layout(G, seed=42)
 
@@ -152,43 +152,11 @@ for i in range(num_graphs):
     result = run_aco_simulation(G, pheromone_levels_initial, num_ants=10, iterations=1000, source=0, sink=num_nodes - 1)
     results_without_optimizations.append(result)
 
-    # Visualization for ACO without optimizations
-    plt.figure(figsize=(10, 10))
-    max_pheromone = max(pheromone_levels_initial.values())
-    weights = [np.log1p(pheromone_levels_initial[edge]) / np.log1p(max_pheromone) for edge in G.edges]  # Pheromone scaling using log
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='skyblue')
-    nx.draw_networkx_labels(G, pos)
-    nx.draw_networkx_edges(G, pos, width=[w * 5 for w in weights], edge_color=weights, edge_cmap=plt.cm.Blues)
-    # Highlight start and end nodes
-    nx.draw_networkx_nodes(G, pos, nodelist=[0], node_size=500, node_color='green', label='Start Node')
-    nx.draw_networkx_nodes(G, pos, nodelist=[num_nodes - 1], node_size=500, node_color='red', label='End Node')
-    plt.legend(loc='upper left')
-    plt.title("ACO Routing without Optimizations")
-    cbar = plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.Blues), ax=plt.gca(), label="Pheromone Intensity")
-    plt.savefig("aco_routing_without_optimizations.png")
-    plt.show()
-
     # Run ACO with optimizations
     print("Running ACO with optimizations...")
     pheromone_levels_optimized = {edge: 1 for edge in G.edges}  # Reinitialize pheromone levels
     result = run_aco_simulation(G, pheromone_levels_optimized, num_ants=10, iterations=1000, source=0, sink=num_nodes - 1, adaptive_evaporation=True, apply_local_search=True)
     results_with_optimizations.append(result)
-
-    # Visualization for ACO with optimizations
-    plt.figure(figsize=(10, 10))
-    max_pheromone = max(pheromone_levels_optimized.values())
-    weights = [np.log1p(pheromone_levels_optimized[edge]) / np.log1p(max_pheromone) for edge in G.edges]  # Pheromone scaling using log
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='skyblue')
-    nx.draw_networkx_labels(G, pos)
-    nx.draw_networkx_edges(G, pos, width=[w * 5 for w in weights], edge_color=weights, edge_cmap=plt.cm.Blues)
-    # Highlight start and end nodes
-    nx.draw_networkx_nodes(G, pos, nodelist=[0], node_size=500, node_color='green', label='Start Node')
-    nx.draw_networkx_nodes(G, pos, nodelist=[num_nodes - 1], node_size=500, node_color='red', label='End Node')
-    plt.legend(loc='upper left')
-    plt.title("ACO Routing with Optimizations")
-    cbar = plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.Blues), ax=plt.gca(), label="Pheromone Intensity")
-    plt.savefig("aco_routing_with_optimizations.png")
-    plt.show()
 
     # Run ACO with adaptive multi-pheromone system
     print("Running ACO with adaptive multi-pheromone system...")
@@ -197,22 +165,6 @@ for i in range(num_graphs):
     result = run_aco_simulation(G, primary_pheromone_levels, num_ants=10, iterations=1000, source=0, sink=num_nodes - 1, multi_pheromone=True, secondary_pheromone_levels=secondary_pheromone_levels)
     results_multi_pheromone.append(result)
 
-    # Visualization for ACO with adaptive multi-pheromone system
-    plt.figure(figsize=(10, 10))
-    max_primary_pheromone = max(primary_pheromone_levels.values())
-    weights_primary = [np.log1p(primary_pheromone_levels[edge]) / np.log1p(max_primary_pheromone) for edge in G.edges]  # Pheromone scaling using log
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='skyblue')
-    nx.draw_networkx_labels(G, pos)
-    nx.draw_networkx_edges(G, pos, width=[w * 5 for w in weights_primary], edge_color=weights_primary, edge_cmap=plt.cm.Blues)
-    # Highlight start and end nodes
-    nx.draw_networkx_nodes(G, pos, nodelist=[0], node_size=500, node_color='green', label='Start Node')
-    nx.draw_networkx_nodes(G, pos, nodelist=[num_nodes - 1], node_size=500, node_color='red', label='End Node')
-    plt.legend(loc='upper left')
-    plt.title("ACO Routing with Adaptive Multi-Pheromone System")
-    cbar = plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.Blues), ax=plt.gca(), label="Pheromone Intensity")
-    plt.savefig("aco_routing_with_multi_pheromone.png")
-    plt.show()
-
     # Run ACO with adaptive multi-pheromone system and dynamic alpha-beta
     print("Running ACO with adaptive multi-pheromone system and dynamic alpha-beta...")
     primary_pheromone_levels_dynamic = {edge: 1 for edge in G.edges}  # Primary pheromone levels
@@ -220,44 +172,12 @@ for i in range(num_graphs):
     result = run_aco_simulation(G, primary_pheromone_levels_dynamic, num_ants=10, iterations=1000, source=0, sink=num_nodes - 1, multi_pheromone=True, secondary_pheromone_levels=secondary_pheromone_levels_dynamic)
     results_multi_pheromone.append(result)
 
-    # Visualization for ACO with adaptive multi-pheromone system and dynamic alpha-beta
-    plt.figure(figsize=(10, 10))
-    max_pheromone_dynamic = max(primary_pheromone_levels_dynamic.values())
-    weights_dynamic = [np.log1p(primary_pheromone_levels_dynamic[edge]) / np.log1p(max_pheromone_dynamic) for edge in G.edges]
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='skyblue')
-    nx.draw_networkx_labels(G, pos)
-    nx.draw_networkx_edges(G, pos, width=[w * 5 for w in weights_dynamic], edge_color=weights_dynamic, edge_cmap=plt.cm.Blues)
-    # Highlight start and end nodes
-    nx.draw_networkx_nodes(G, pos, nodelist=[0], node_size=500, node_color='green', label='Start Node')
-    nx.draw_networkx_nodes(G, pos, nodelist=[num_nodes - 1], node_size=500, node_color='red', label='End Node')
-    plt.legend(loc='upper left')
-    plt.title("ACO Routing with Adaptive Multi-Pheromone System and Dynamic Alpha-Beta")
-    cbar = plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.Blues), ax=plt.gca(), label="Pheromone Intensity")
-    plt.savefig("aco_routing_with_multi_pheromone_dynamic.png")
-    plt.show()
-
     # Run ACO with hybrid implementation
     print("Running ACO with hybrid implementation...")
     hybrid_pheromone_levels = {edge: 1 for edge in G.edges}  # Hybrid pheromone levels
     hybrid_secondary_pheromone_levels = {edge: 1 for edge in G.edges}  # Secondary pheromone levels
     result = run_aco_simulation(G, hybrid_pheromone_levels, num_ants=10, iterations=1000, source=0, sink=num_nodes - 1, adaptive_evaporation=True, apply_local_search=True, multi_pheromone=True, secondary_pheromone_levels=hybrid_secondary_pheromone_levels)
     results_multi_pheromone.append(result)
-
-    # Visualization for ACO with hybrid implementation
-    plt.figure(figsize=(10, 10))
-    max_pheromone_hybrid = max(hybrid_pheromone_levels.values())
-    weights_hybrid = [np.log1p(hybrid_pheromone_levels[edge]) / np.log1p(max_pheromone_hybrid) for edge in G.edges]
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='skyblue')
-    nx.draw_networkx_labels(G, pos)
-    nx.draw_networkx_edges(G, pos, width=[w * 5 for w in weights_hybrid], edge_color=weights_hybrid, edge_cmap=plt.cm.Blues)
-    # Highlight start and end nodes
-    nx.draw_networkx_nodes(G, pos, nodelist=[0], node_size=500, node_color='green', label='Start Node')
-    nx.draw_networkx_nodes(G, pos, nodelist=[num_nodes - 1], node_size=500, node_color='red', label='End Node')
-    plt.legend(loc='upper left')
-    plt.title("ACO Routing with Hybrid Implementation")
-    cbar = plt.colorbar(plt.cm.ScalarMappable(cmap=plt.cm.Blues), ax=plt.gca(), label="Pheromone Intensity")
-    plt.savefig("aco_routing_with_hybrid.png")
-    plt.show()
 
 # Step 2: Calculate average metrics for each implementation
 def calculate_average_metrics(results):
